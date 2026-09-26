@@ -1,5 +1,7 @@
 import argparse
+import random
 from flask import Flask
+from tests.unit_tests import mock_db
 
 app = Flask(__name__)
 
@@ -16,6 +18,7 @@ def main():
     args = parser.parse_args()
     if args.test:
         return "The script is in test mode."
+
     return "The script is in default mode."
 
 if __name__ == "__main__":
