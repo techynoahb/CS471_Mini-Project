@@ -4,6 +4,9 @@ import sqlite3
 from flask import Flask, request
 from faker import Faker
 
+# Purpose: Implement the front-end command-line interface for interacting with the program.
+# Should communicate with inventory.py
+
 app = Flask(__name__)
 
 parser = argparse.ArgumentParser(
