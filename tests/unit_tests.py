@@ -17,7 +17,7 @@ def mock_db():
 
 def test_get_item(mock_db):
     query_id = str(0).zfill(4)
-    obj = mock_db.execute("SELECT obj FROM testTable WHERE id = ?;", (query_id)).fetchone()
+    obj = mock_db.execute("SELECT obj FROM testTable WHERE id = ?;", (query_id,)).fetchone()
 
     print(obj)
 
