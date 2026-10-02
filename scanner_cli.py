@@ -1,4 +1,5 @@
 import argparse
+import inventory
 
 # Purpose: Implement the front-end command-line interface for interacting with the program.
 # Should communicate with inventory.py
@@ -32,9 +33,16 @@ def main():
         if not is_valid_rfid(args.code):
             raise ValueError("Invalid RFID tag") # TODO: Decide behavior, just printout and exit? Or manual input?
         print(f"Manual RFID tag entry mode enabled: {args.code}")
-        # Should communicate with inventory.py to log the RFID tag scan
+        print(inventory.process_scan(args.code))
+        return
 
-    # TODO: Implement default behavior for RFID USB input w/o system arguments
+   # A USB RFID reader types the tag ID + Enter, just like a keyboard.
+    print("Ready to scan  (Ctrl+C to quit)")
+    try:
+        while True:
+            print(inventory.process_scan(input("> ").strip()))
+    except (KeyboardInterrupt, EOFError):
+        print("\nExiting")
 
 
 if __name__ == "__main__":
