@@ -13,3 +13,6 @@ def get_item(rfid):
 
 def log_scan(rfid, status, time):
     items[rfid]["status"] = status
+
+def add_item(rfid, name):
+    items[rfid] = {"name": name, "status": "checked in"}

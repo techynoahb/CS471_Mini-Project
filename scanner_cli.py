@@ -31,7 +31,13 @@ def main():
     print("Ready to scan  (Ctrl+C to quit)")
     try:
         while True:
-            print(inventory.process_scan(input("> ").strip()))
+            tag = input("> ").strip()
+            if inventory.is_new_tag(tag):
+                name = input("New tag, enter item name (blank to skip): ").strip()
+                if name:
+                    print(inventory.register_item(tag, name))
+            else:
+                print(inventory.process_scan(tag))
     except (KeyboardInterrupt, EOFError):
         print("\nExiting")
 

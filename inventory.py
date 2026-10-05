@@ -1,4 +1,5 @@
 # Purpose: Implementation of script that communicates between scanner_cli.py and database.py
+
 from datetime import datetime
 import database
 
@@ -18,3 +19,15 @@ def process_scan(rfid):
     database.log_scan(rfid, new_status, time)
 
     return f"{item['name']} {new_status} at {time}"
+
+def is_new_tag(rfid):
+    return is_valid_rfid(rfid) and database.get_item(rfid) is None
+
+#item registration: if a valid rfid is entered but not yet stored, then ask user to enter a name, if not return the rfid
+def register_item(rfid, name):
+    if not is_valid_rfid(rfid):
+        return f"Invalid RFID tag: {rfid}"
+    if database.get_item(rfid) is not None:
+        return f"Tag {rfid} is already registered"
+    database.add_item(rfid, name)
+    return f"Registered {name} with tag {rfid}"
