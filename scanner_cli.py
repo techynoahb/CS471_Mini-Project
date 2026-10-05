@@ -28,7 +28,7 @@ def main():
         return
 
    # A USB RFID reader types the tag ID + Enter, just like a keyboard.
-    print("Ready to scan  (Ctrl+C to quit, --help for options)")
+    print("Ready to scan  (Ctrl+C to quit)")
     try:
         while True:
             tag = input("> ").strip()
