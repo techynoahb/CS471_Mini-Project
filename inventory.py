@@ -4,7 +4,7 @@ from datetime import datetime
 import database
 
 def is_valid_rfid(code):
-    return str(code).isdigit() and len(str(code)) == 7
+    return str(code).isdigit() and len(str(code)) == 10
 
 def process_scan(rfid):
     if not is_valid_rfid(rfid):
