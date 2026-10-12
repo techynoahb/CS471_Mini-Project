@@ -4,9 +4,46 @@ import inventory
 # Purpose: Implement the front-end command-line interface for interacting with the program.
 # Should communicate with inventory.py
 
+def scan_loop():
+    # A USB RFID reader types the tag ID + Enter, just like a keyboard.
+    print("Ready to scan  (enter q or press Ctrl+C to return to the menu)")
+    try:
+        while True:
+            tag = input("> ").strip()
+            if tag.lower() == "q":
+                print("Returning to main menu")
+                return
+            if inventory.is_new_tag(tag):
+                name = input("New tag, enter item name (blank to skip): ").strip()
+                if name:
+                    print(inventory.register_item(tag, name))
+            else:
+                print(inventory.process_scan(tag))
+    except KeyboardInterrupt:
+        print("\nReturning to main menu")
+
+def display_inventory():
+    rows = [
+        (str(item[1] or ""), str(item[0]), str(item[2] or ""), str(item[3] or ""), str(item[4]))
+        for item in inventory.get_inventory()
+    ]
+    headers = ("Item", "RFID", "Status", "Last transaction", "Times checked out")
+    widths = [max(len(header), *(len(row[index]) for row in rows)) for index, header in enumerate(headers)]
+    border = "+-" + "-+-".join("-" * width for width in widths) + "-+"
+
+    print("\nInventory")
+    print(border)
+    print("| " + " | ".join(header.ljust(widths[index]) for index, header in enumerate(headers)) + " |")
+    print(border)
+    for row in rows:
+        print("| " + " | ".join(value.ljust(widths[index]) for index, value in enumerate(row)) + " |")
+    print(border)
+    if not rows:
+        print("No items are registered.")
+
 def main():
     parser = argparse.ArgumentParser(
-        description="RFID scanner script that logs scans of RFID tags and their respective item lookup" # WiP
+        description="RFID scanner script that logs scans of RFID tags and their respective item lookup"
     )
     parser.add_argument(
         "-t", "--test",
@@ -15,29 +52,38 @@ def main():
     )
     parser.add_argument(
         "-c", "--code",
-        action="store",
-        help="Manually enter RFID tag"
+        help="Manually enter an RFID tag when scan mode is selected"
     )
-
     args = parser.parse_args()
     if args.test:
-        print("Test mode enabled") # TODO: Should set bool to not commit any transactions to database
-    if args.code:
-        print("Manual RFID tag entry mode enabled.")
-        print(inventory.process_scan(args.code))
-        return
+        print("Test mode enabled")
 
-   # A USB RFID reader types the tag ID + Enter, just like a keyboard.
-    print("Ready to scan  (Ctrl+C to quit)")
     try:
         while True:
-            tag = input("> ").strip()
-            if inventory.is_new_tag(tag):
-                name = input("New tag, enter item name (blank to skip): ").strip()
-                if name:
-                    print(inventory.register_item(tag, name))
+            print("\n+------------------------------+")
+            print("|       RFID INVENTORY        |")
+            print("+------------------------------+")
+            print("| 1. Scan RFID tags           |")
+            print("| 2. View database inventory  |")
+            print("| 0. Exit                     |")
+            print("+------------------------------+")
+            choice = input("Select an option: ").strip()
+
+            if choice == "1":
+                if args.code:
+                    print("Manual RFID tag entry mode enabled.")
+                    print(inventory.process_scan(args.code))
+                    args.code = None
+                else:
+                    scan_loop()
+            elif choice == "2":
+                display_inventory()
+                input("\nPress Enter to continue...")
+            elif choice == "0":
+                print("Goodbye")
+                return
             else:
-                print(inventory.process_scan(tag))
+                print("Please choose 1, 2, or 0.")
     except (KeyboardInterrupt, EOFError):
         print("\nExiting")
 

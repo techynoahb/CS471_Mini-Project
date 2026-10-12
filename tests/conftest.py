@@ -22,7 +22,8 @@ def mock_db_factory(db_path):
             rfid TEXT PRIMARY KEY,
             object TEXT,
             status TEXT,
-            transactionTime TIMESTAMP
+            transactionTime TIMESTAMP,
+            checkoutCount INTEGER NOT NULL DEFAULT 0
         );
         """
     )

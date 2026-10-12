@@ -16,9 +16,15 @@ def rfid_db():
             rfid TEXT PRIMARY KEY,
             object TEXT,
             status TEXT,
-            transactionTime TIMESTAMP
+            transactionTime TIMESTAMP,
+            checkoutCount INTEGER NOT NULL DEFAULT 0
         );
     """)
+    columns = {column[1] for column in cursor.execute("PRAGMA table_info(inventoryTable)")}
+    if "checkoutCount" not in columns:
+        cursor.execute(
+            "ALTER TABLE inventoryTable ADD COLUMN checkoutCount INTEGER NOT NULL DEFAULT 0"
+        )
     cursor.close()
     db_con.commit()
     try:
@@ -32,14 +38,23 @@ def get_item(rfid): # TODO: Return item as dict, or its own class, anything othe
         item = cursor.execute("SELECT * FROM inventoryTable WHERE rfid = (?)", (rfid,)).fetchone()
         return item
 
+def list_items():
+    with rfid_db() as db_con:
+        cursor = db_con.cursor()
+        return cursor.execute(
+            "SELECT rfid, object, status, transactionTime, checkoutCount "
+            "FROM inventoryTable ORDER BY object, rfid"
+        ).fetchall()
+
 def log_scan(rfid, status, time): # TODO: Clarify if it should be 1 new row for every check-in/out?
     with rfid_db() as db_con:
         cursor = db_con.cursor()
         cursor.execute("""
             UPDATE inventoryTable
-            SET status = (?), transactionTime = (?)
+            SET status = (?), transactionTime = (?),
+                checkoutCount = checkoutCount + CASE WHEN ? = 'checked out' THEN 1 ELSE 0 END
             WHERE rfid = (?);
-        """, (status, time, rfid,))
+        """, (status, time, status, rfid,))
         db_con.commit()
 
 def add_item(rfid, name, time):

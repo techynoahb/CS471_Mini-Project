@@ -13,7 +13,7 @@ def process_scan(rfid):
     item = database.get_item(rfid)
     if item is None:
         return f"No item found for tag {rfid}"
-    new_status = "checked in" if "checked out" in item else "checked out"
+    new_status = "checked in" if item[2] == "checked out" else "checked out"
     time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     database.log_scan(rfid, new_status, time)
 
@@ -21,6 +21,9 @@ def process_scan(rfid):
 
 def is_new_tag(rfid):
     return is_valid_rfid(rfid) and database.get_item(rfid) is None
+
+def get_inventory():
+    return database.list_items()
 
 #item registration: if a valid rfid is entered but not yet stored, then ask user to enter a name, if not return the rfid
 def register_item(rfid, name):
