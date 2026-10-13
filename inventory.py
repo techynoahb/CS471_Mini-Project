@@ -34,3 +34,11 @@ def register_item(rfid, name):
     time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     database.add_item(rfid, name, time)
     return f"Registered {name} with tag {rfid}"
+
+def unregister_item(rfid):
+    if not is_valid_rfid(rfid):
+        return f"Invalid RFID tag: {rfid}"
+    elif database.get_item(rfid) is None:
+        return f"RFID {rfid} is already absent from database."
+    database.remove_item(rfid)
+    return f"Removed RFID {rfid} from database."

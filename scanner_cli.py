@@ -65,25 +65,33 @@ def main():
             print("+------------------------------+")
             print("| 1. Scan RFID tags           |")
             print("| 2. View database inventory  |")
+            print("| 3. Delete tags              |")
             print("| 0. Exit                     |")
             print("+------------------------------+")
             choice = input("Select an option: ").strip()
-
-            if choice == "1":
-                if args.code:
-                    print("Manual RFID tag entry mode enabled.")
-                    print(inventory.process_scan(args.code))
-                    args.code = None
-                else:
-                    scan_loop()
-            elif choice == "2":
-                display_inventory()
-                input("\nPress Enter to continue...")
-            elif choice == "0":
-                print("Goodbye")
-                return
-            else:
-                print("Please choose 1, 2, or 0.")
+            match choice:
+                case "1":
+                    if args.code:
+                        print("Manual RFID tag entry mode enabled.")
+                        print(inventory.process_scan(args.code))
+                        args.code = None
+                    else:
+                        scan_loop()
+                case "2":
+                    display_inventory()
+                    input("\nPress Enter to continue...")
+                case "3":
+                    if args.code:
+                        print("Manual RFID tag entry mode enabled.")
+                    target_tag = args.code if args.code else input("Enter a tag to delete from the database: ")
+                    confirm = input(f"Confirm deletion of {target_tag}?")
+                    if confirm.strip().upper() in ["YES", "Y"]:
+                        print(inventory.unregister_item(target_tag))
+                case "0":
+                    print("Goodbye")
+                    return
+                case _:
+                    print("Please choose 1, 2, or 0.")
     except (KeyboardInterrupt, EOFError):
         print("\nExiting")
 

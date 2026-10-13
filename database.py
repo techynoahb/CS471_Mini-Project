@@ -4,7 +4,6 @@ import sqlite3
 from contextlib import contextmanager
 
 # TODO: Add proper behavior for -t or --test in CLI
-# TODO: Rework unit tests to match functionality
 
 @contextmanager
 def rfid_db():
@@ -35,8 +34,12 @@ def rfid_db():
 def get_item(rfid): # TODO: Return item as dict, or its own class, anything other than a tuple
     with rfid_db() as db_con:
         cursor = db_con.cursor()
-        item = cursor.execute("SELECT * FROM inventoryTable WHERE rfid = (?)", (rfid,)).fetchone()
-        return item
+        try:
+            item = cursor.execute("SELECT * FROM inventoryTable WHERE rfid = (?)", (rfid,)).fetchone()
+            return item
+        except Exception as e:
+            print(e)
+            return None
 
 def list_items():
     with rfid_db() as db_con:
@@ -46,7 +49,7 @@ def list_items():
             "FROM inventoryTable ORDER BY object, rfid"
         ).fetchall()
 
-def log_scan(rfid, status, time): # TODO: Clarify if it should be 1 new row for every check-in/out?
+def log_scan(rfid, status, time):
     with rfid_db() as db_con:
         cursor = db_con.cursor()
         cursor.execute("""
@@ -64,4 +67,12 @@ def add_item(rfid, name, time):
             INSERT INTO inventoryTable(rfid, object, status, transactionTime)
             VALUES (?, ?, ?, ?);
         """, (rfid, name, "checked in", time,))
+        db_con.commit()
+
+def remove_item(rfid):
+    with rfid_db() as db_con:
+        cursor = db_con.cursor()
+        cursor.execute("""
+            DELETE FROM inventoryTable WHERE rfid = (?);
+        """, (rfid,))
         db_con.commit()
