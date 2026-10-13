@@ -40,3 +40,9 @@ def test_get_inventory_lists_item_details():
     assert item[1] == "Laptop"
     assert item[2] == "checked out"
     assert item[4] == 1
+
+def test_unregister_item():
+    inventory.register_item("1234567890", "Laptop")
+    inventory.unregister_item("1234567890")
+    assert database.get_item("1234567890") is None
+
