@@ -27,6 +27,9 @@ def display_inventory():
         (str(item[1] or ""), str(item[0]), str(item[2] or ""), str(item[3] or ""), str(item[4]))
         for item in inventory.get_inventory()
     ]
+    if not rows:
+        print("No items are registered.")
+        return
     headers = ("Item", "RFID", "Status", "Last transaction", "Times checked out")
     widths = [max(len(header), *(len(row[index]) for row in rows)) for index, header in enumerate(headers)]
     border = "+-" + "-+-".join("-" * width for width in widths) + "-+"
@@ -38,8 +41,6 @@ def display_inventory():
     for row in rows:
         print("| " + " | ".join(value.ljust(widths[index]) for index, value in enumerate(row)) + " |")
     print(border)
-    if not rows:
-        print("No items are registered.")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -84,7 +85,7 @@ def main():
                     if args.code:
                         print("Manual RFID tag entry mode enabled.")
                     target_tag = args.code if args.code else input("Enter a tag to delete from the database: ")
-                    confirm = input(f"Confirm deletion of {target_tag}?")
+                    confirm = input(f"Confirm deletion of {target_tag}? ")
                     if confirm.strip().upper() in ["YES", "Y"]:
                         print(inventory.unregister_item(target_tag))
                 case "0":
