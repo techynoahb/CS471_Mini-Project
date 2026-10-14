@@ -85,7 +85,7 @@ def main():
                     if args.code:
                         print("Manual RFID tag entry mode enabled.")
                     target_tag = args.code if args.code else input("Enter a tag to delete from the database: ")
-                    confirm = input(f"Confirm deletion of {target_tag}? ")
+                    confirm = input(f"Confirm deletion of {target_tag}?(y/n) ")
                     if confirm.strip().upper() in ["YES", "Y"]:
                         print(inventory.unregister_item(target_tag))
                 case "0":
