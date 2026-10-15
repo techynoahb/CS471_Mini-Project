@@ -3,11 +3,21 @@
 import sqlite3
 from contextlib import contextmanager
 
-# TODO: Add proper behavior for -t or --test in CLI
+TEST_MODE = False
+
+def set_test_mode(config: bool):
+    global TEST_MODE
+    TEST_MODE = config
+
+class CondConnect(sqlite3.Connection):
+    def commit(self):
+        if TEST_MODE:
+            return
+        super().commit()
 
 @contextmanager
 def rfid_db():
-    db_con = sqlite3.connect("inventory.db")
+    db_con = sqlite3.connect("inventory.db", factory=CondConnect)
     cursor = db_con.cursor()
 
     cursor.execute("""

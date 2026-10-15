@@ -1,4 +1,5 @@
 import argparse
+import database
 import inventory
 
 # Purpose: Implement the front-end command-line interface for interacting with the program.
@@ -56,6 +57,7 @@ def main():
         help="Manually enter an RFID tag when scan mode is selected"
     )
     args = parser.parse_args()
+    database.set_test_mode(args.test)
     if args.test:
         print("Test mode enabled")
 
@@ -85,15 +87,19 @@ def main():
                     if args.code:
                         print("Manual RFID tag entry mode enabled.")
                     target_tag = args.code if args.code else input("Enter a tag to delete from the database: ")
-                    confirm = input(f"Confirm deletion of {target_tag}?(y/n) ")
+                    confirm = input(f"Confirm deletion of {target_tag}? (Y/N) ")
                     if confirm.strip().upper() in ["YES", "Y"]:
                         print(inventory.unregister_item(target_tag))
                 case "0":
-                    print("Goodbye")
+                    if args.test:
+                        print("Test mode: Did not commit any changes to inventory.db")
+                    print("\nGoodbye")
                     return
                 case _:
                     print("Please choose 1, 2, or 0.")
     except (KeyboardInterrupt, EOFError):
+        if args.test:
+            print("Test mode: Did not commit any changes to inventory.db")
         print("\nExiting")
 
 
