@@ -13,11 +13,11 @@ def process_scan(rfid):
     item = database.get_item(rfid)
     if item is None:
         return f"No item found for tag {rfid}"
-    new_status = "checked in" if item[2] == "checked out" else "checked out"
+    new_status = "checked in" if item.status == "checked out" else "checked out"
     time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     database.log_scan(rfid, new_status, time)
 
-    return f"{item[1]} {new_status} at {time}"
+    return f"{item.object} {new_status} at {time}"
 
 def is_new_tag(rfid):
     return is_valid_rfid(rfid) and database.get_item(rfid) is None

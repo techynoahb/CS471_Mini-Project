@@ -1,5 +1,7 @@
 # Purpose: Implementation of the backend sqlite database that inventory.py pulls from.
 
+from dataclasses import dataclass
+
 import sqlite3
 from contextlib import contextmanager
 
@@ -14,6 +16,14 @@ class CondConnect(sqlite3.Connection):
         if TEST_MODE:
             return
         super().commit()
+
+@dataclass
+class InventoryItem:
+    rfid: str
+    object: str
+    status: str
+    transactionTime: str
+    checkoutCount: int
 
 @contextmanager
 def rfid_db():
@@ -41,23 +51,23 @@ def rfid_db():
     finally:
         db_con.close()
 
-def get_item(rfid): # TODO: Return item as dict, or its own class, anything other than a tuple
+def get_item(rfid):
     with rfid_db() as db_con:
         cursor = db_con.cursor()
         try:
             item = cursor.execute("SELECT * FROM inventoryTable WHERE rfid = (?)", (rfid,)).fetchone()
-            return item
+            return InventoryItem(*item) if item else None
         except Exception as e:
-            print(e)
+            print(f"Error fetching item: {e}")
             return None
 
 def list_items():
     with rfid_db() as db_con:
         cursor = db_con.cursor()
-        return cursor.execute(
+        return [InventoryItem(*row) for row in cursor.execute(
             "SELECT rfid, object, status, transactionTime, checkoutCount "
             "FROM inventoryTable ORDER BY object, rfid"
-        ).fetchall()
+        ).fetchall()]
 
 def log_scan(rfid, status, time):
     with rfid_db() as db_con:

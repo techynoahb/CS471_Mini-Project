@@ -25,7 +25,7 @@ def scan_loop():
 
 def display_inventory():
     rows = [
-        (str(item[1] or ""), str(item[0]), str(item[2] or ""), str(item[3] or ""), str(item[4]))
+        (str(item.object or ""), str(item.rfid), str(item.status or ""), str(item.transactionTime or ""), str(item.checkoutCount))
         for item in inventory.get_inventory()
     ]
     if not rows:
